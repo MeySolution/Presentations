@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Gefahren von HTML5 &amp; JS</title>
+
+		<meta name="description" content="A Presentation about the dangers of the new HTML5 features in comination with JS">
+		<meta name="author" content="Christopher Meyering">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+		<style type="text/css">
+			.img {
+				background-color: rgba(255, 255, 255, 0.00) !important;
+				border: 0 !important;
+				box-shadow: none !important;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="reveal">
+			<!-- Any section element inside of this container is displayed as a slide -->		
+			<div class="slides">
+				<section>
+					<h1>Dangers of<br /> <img src="img/HTML5.png" class="img" width="200px"> &amp; <img src="img/javascript.png" class="img" width="200px"> <br>
+					</h1>
+					<h4>by Christopher Meyering</h4>					
+				</section>
+				<section>
+					<section>
+					<h2>big bad input fields</h2>
+						<p>
+							<br>
+						</p>
+						<p>
+							Neues Attribut: <strong>formaction=""</strong>
+						</p>
+					</section>
+
+					<section>
+						<h3>Was ist denn das?</h3>
+						<p>
+							<ul>
+								<li>Kann in &lt;input&gt; Feldern benutzt werden</li>
+								<li>Wird statt der Action des Formulares ausgef&uuml;hrt und kann <strong>jeden Wert</strong> annehmen</li>
+							</ul>
+						</p>
+					</section>
+
+					<section>
+						<h2>Showcase</h2>						
+							<div style="text-align: left;">
+								<form action="/login.html" method="get">
+									<label for="username">Benutzername:</label>
+									<input type="text" name="username" id="username" value="">
+									<br />
+									<label for="passwd">Passwort:</label>
+									<input type="password" name="passwd" id="password" value="">
+									<br />
+									<input type="submit" name="Login" value="Login">
+								</form>
+							</div>							
+						
+<pre><code>&lt;form action="/login.php" method="post"&gt;
+	&lt;input type="text" name="username" value="Max"&gt;
+	&lt;input type="password" name="passwd" value="MaxPW"&gt;
+	&lt;input type="submit" name="login" value="login"&gt;
+&lt;/form&gt;</code></pre>
+							<h3>B&ouml;ser zweiter Button</h3>
+							<div style="text-align: left;">
+								<form action="/login.html" method="get">
+									<label for="username">Benutzername:</label>
+									<input type="text" name="username" id="username" value="">
+									<br />
+									<label for="passwd">Passwort:</label>
+									<input type="password" name="passwd" id="password" value="">
+									<br />
+									<input type="submit" name="Login" value="Login">
+									<input type="submit" name="Login2" value="Click me!" formaction="http://example.org">
+								</form>
+							</div>
+							<pre><code>&lt;input type="submit" name="Login2" value="Click me!" formaction="http://example.org"&gt;</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Stored XSS</h2>
+						<img class="img" src="img/db.png" width="150px">
+						<img class="img" src="img/bug.png" width="200px">
+					</section>					
+					<section>
+						<h2>Was ist angreifbar?</h2>
+						<p>
+							<ul>
+								<li>SessionStorage</li>
+								<li>LocalStorage</lli>
+								<li>WebSql <strong>*</strong></lli>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h2>Was ist denn das?</h2>
+						<p>
+							Einschleusen von JS-Schadcode in den lokalen Speicher zur sp&auml;teren Ausf&uuml;hrung.
+						</p>
+						<br />
+						<p>
+							Dies ist besonders dann ein Problem, wenn Internet &amp; und Intranet &uuml;ber die selbe Domain erreichbar sind, da dann auch von beiden auf den selben Storage zugegriffen wird.
+						</p>
+					</section>
+					<section>
+						<h2>Was kann man tun?</h2>
+						<p>
+							Wenn man mit einem lokalen Speicher arbeitet sollte dieser vor der eigenen Initalisierung einmal KOMPLETT geleert werden.
+						</p>
+						<p>
+<pre><code>window.localStorage.clear();
+window.sessionStorage.clear();</code></pre>
+						</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Web Sockets</h2>
+						<img class="img" src="img/websocket.png">
+					</section>
+					<section>
+						<h2>Was ist dann denn nun schon wieder?</h2>
+						<p>	
+							<a href="http://de.wikipedia.org/wiki/WebSocket">Wikipedia</a> sagt:<br />
+							<blockquote>Das WebSocket-Protokoll ist ein auf TCP basierendes Netzwerkprotokoll, das entworfen wurde, um eine bidirektionale Verbindung zwischen einer Webanwendung und einem WebSocket-Server bzw. einem Web-Server, der auch WebSockets unterst&uuml;tzt, herzustellen.
+							</blockquote>
+						</p>
+					</section>
+					<section>
+						<h2>Was ist daran denn schlimm?</h2>
+						<p>
+							<ul>
+								<li>
+									V&ouml;llig neue Angriffsm&ouml;glichkeiten
+									<ul>
+										<li>Scannen des <strong>lokalen</strong> Netzwerkes nach offenen Ports</li>
+										<li>TCP Flooding</li>
+										<li>Formular Hijacking</li>
+									</ul>
+								</li>
+								<li>Schwer / unm&ouml;glich zu &uuml;berwachen</li>
+								
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h2>Showcase</h2>
+						<iframe src="http://www.andlabs.org/tools/jsrecon.html" width="100%" height="500px" style="background-color: white;"></iframe>
+					</section>
+				</section>				
+				<section>
+					<section>
+						<h2>SVG's</h2>
+						<img class="img" src="img/svg.png" width="200px">
+					</section>
+					<section>
+						<h2>S...V was?</h2>
+						<p>
+							<ul>
+								<li>Steht f&uuml;r Scalable Vector Graphics</li>
+								<li>"XML-Grafiken"</li>
+								<li>Ein Image - alle Aufl&ouml;sungen!</li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h2>Showcase</h2>
+						<p>
+							<img src="img/redCircle.svg" class="img">
+						</p>
+						<p>
+							<h3>Der Code:</h3>
+<pre><code>
+&lt;?xml version="1.0" standalone="no"?&gt;
+&lt;!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"&gt;
+	&lt;circle cx="100" cy="50" r="40" stroke="black"
+	stroke-width="2" fill="red" /&gt;
+&lt;/svg&gt;
+</code></pre>
+						</p>
+					</section>
+					<section>
+						<h2>Make it evil</h2>
+						<p>
+							<h3>Eine weitere Zeile Code...</h3>
+<pre><code>&lt;?xml version="1.0" standalone="no"?&gt;
+&lt;!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"&gt;
+	&lt;circle cx="100" cy="50" r="40" stroke="black"
+	stroke-width="2" fill="red" /&gt;
+	&lt;script&gt;alert('XSS');&lt;/script&gt;
+&lt;/svg&gt;</code></pre>							
+						</p>
+						<p>
+							<h3>Und.....?</h3>
+							<img class="img" src="img/redCircle.svg">
+						</p>
+					</section>
+					<section>
+						<h2>Nicht passiert? Also ist SVG sicher?</h2>
+						<img class="img" src="img/redCircle.svg"> &lt;-- schauen wir uns das Bild einmal in einer neuen Seite an
+					</section>
+					<section>
+						<h2>Wieso passiert sowas?</h2>
+						<p>
+							Embeded-Images werden vom Browser lediglich als gerendertes Bild geladen, aber nicht im Frontend direkt gerendert.
+						</p>
+						<p>
+							Wenn das Bild einzeln aufgerufen wird findet das Rendering direkt statt.
+						</p>
+					</section>
+				</section>
+				<section>
+					<h2>Fragen?</h2>
+					<p>
+						Dann fragt los!
+					</p>
+					<h3>By Christopher Meyering</h3>
+					<h4>27.06.2013</h4>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: false,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
